@@ -1,16 +1,26 @@
 const Meals = require('../models/mealsModel');
 
-exports.getAllMeals = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    data: {
-      message: 'List of all meals',
-    },
-  });
+exports.getAllMeals = async (req, res) => {
+  try {
+    const meals = await Meals.find();
+    res.status(200).json({
+      status: 'success',
+      results: meals.length,
+      data: {
+        meals,
+      },
+    });
+  } catch (e) {
+    res.status(400).json({
+      status: 'fail',
+      data: {
+        message: 'Uh oh! Something went wrong',
+      },
+    });
+  }
 };
 
 exports.createNewMeal = async (req, res) => {
-  console.log(req);
   try {
     const newMeal = await Meals.create(req.body);
     res.status(200).json({
@@ -29,29 +39,66 @@ exports.createNewMeal = async (req, res) => {
   }
 };
 
-exports.getMeal = (req, res) => {
-  const id = req.params.id * 1;
-  res.status(200).json({
-    status: 'success',
-    data: {
-      message: `Product for id ${id} is attached`,
-    },
-  });
+exports.getMeal = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const meal = await Meals.findById(id);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        meal,
+      },
+    });
+  } catch (e) {
+    res.status(404).json({
+      status: 'fail',
+      data: {
+        message: e,
+      },
+    });
+  }
 };
 
-exports.updateMeal = (req, res) => {
-  const id = req.params.id * 1;
-  res.status(200).json({
-    status: 'success',
-    data: {
-      message: `Product with id ${id} has been updated`,
-    },
-  });
+exports.updateMeal = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const body = req.body;
+    const meal = await Meals.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        meal,
+      },
+    });
+  } catch (e) {
+    res.status(404).json({
+      status: 'fail',
+      data: {
+        message: e,
+      },
+    });
+  }
 };
 
-exports.deleteMeal = (req, res) => {
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+exports.deleteMeal = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Meals.findByIdAndDelete(id);
+    res.status(204).json({
+      status: 'success',
+      data: {
+        message: `Your selected product has been deleted`,
+      },
+    });
+  } catch (e) {
+    res.status(404).json({
+      status: 'fail',
+      data: {
+        message: e,
+      },
+    });
+  }
 };

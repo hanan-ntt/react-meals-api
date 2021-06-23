@@ -4,7 +4,7 @@ const mealsSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Name field is required for every new meal added'],
-    unique: true,
+    unique: [true, 'Meal with this name already exists'],
   },
   description: {
     type: String,
